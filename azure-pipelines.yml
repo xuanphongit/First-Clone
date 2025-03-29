@@ -12,4 +12,6 @@ steps:
     sourceGitRepositoryUri: '$(Build.Repository.Uri)'
     sourceVerifySSLCertificate: false
     destinationGitRepositoryUri: 'https://github.com/xuanphongit/First-Clone/'
-    destinationGitRepositoryPersonalAccessToken: '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'
+    destinationGitRepositoryPersonalAccessToken: $(GITHUB_PAT)
+  env:
+        GITHUB_PAT: $(GITHUB_PAT)  # Securely use the stored token
