@@ -1,5 +1,5 @@
 trigger:
-  - main # Thay đổi nhánh nếu cần
+  - '*' #trigger mỗi khi có thay đổi trên bất kì nhánh nào.
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -13,12 +13,12 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      git remote add github "https://$(githubPAT)@github.com/xuanphongit/First-Clone.git"
-      git push -u github $(Build.SourceBranchName):main --force
+      git remote add github "https://$(githubPAT)@github.com/YOUR_GITHUB_USERNAME/YOUR_GITHUB_REPO.git"
+      git push --mirror github
   env:
     githubPAT: $(GITHUB_PAT)
 
 variables:
-  - group: GitHubCredentials # Nếu có thể dùng Library variables groups là tối ưu.
+  - group: GitHubCredentials
   - name: GITHUB_PAT
     value: $[variables['GitHubPAT']]
