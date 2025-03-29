@@ -1,5 +1,5 @@
 trigger:
-  - '*' #trigger mỗi khi có thay đổi trên bất kì nhánh nào.
+  - '*'
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -8,11 +8,16 @@ steps:
 - checkout: self
   persistCredentials: true
 
-- task: GithubPush@4
+- task: Bash@3
   displayName: 'Mirror to GitHub'
   inputs:
-    targetRepo: 'xuanphongit/First-Clone'
-    branch: '$(Build.SourceBranchName)'
-    serviceConnection: 'xuanphongit'
-    forcePush: true
-    tagSource: 'off'
+    targetType: 'inline'
+    script: |
+      git remote add github "https://$(githubPAT)@github.com/xuanphongit/First-Clone.git"
+      git push --mirror github
+  env:
+    GITHUB_PAT: $(GITHUB_PAT)
+
+variables:
+  - name: GITHUB_PAT
+    value: $(endpoint.SYSTEMVSSCONNECTIONPASSWORD_xuanphongit)
