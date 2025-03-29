@@ -1,17 +1,18 @@
 trigger:
   branches:
     include:
-      - main  # Change this if needed
+      - main  # Change if needed
 
 pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- task: mirror-git-repository-vsts-task@1
-  inputs:
-    sourceGitRepositoryUri: '$(Build.Repository.Uri)'
-    sourceVerifySSLCertificate: false
-    destinationGitRepositoryUri: 'https://github.com/xuanphongit/First-Clone/'
-    destinationGitRepositoryPersonalAccessToken: $(GITHUB_PAT)
-  env:
-        GITHUB_PAT: $(GITHUB_PAT)  # Securely use the stored token
+  - script: |     
+      git clone --mirror "https://$(System.AccessToken)@dev.azure.com/thienthutula/phongmx/_git/First%20Repo"
+      cd YOUR_REPO.git
+
+      git remote set-url origin "https://$(GITHUB_PAT)@github.com/xuanphongit/First-Clone.git"
+      git push --mirror --force
+    displayName: 'Mirror Azure DevOps Repo to GitHub'
+    env:
+      GITHUB_PAT: $(GITHUB_PAT)  # Securely use the stored token
