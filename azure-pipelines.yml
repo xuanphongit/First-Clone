@@ -1,23 +1,15 @@
 trigger:
-  - '*'
+  branches:
+    include:
+      - main  # Change this if needed
 
 pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- checkout: self
-  persistCredentials: true
-
-- task: Bash@3
-  displayName: 'Mirror to GitHub'
+- task: mirror-git-repository-vsts-task@1
   inputs:
-    targetType: 'inline'
-    script: |
-      git remote add github "https://$(GITHUB_PAT)@github.com/xuanphongit/First-Clone.git"
-      git push --mirror github
-  env:
-    GITHUB_PAT: $(GITHUB_PAT)
-
-variables:
-  - name: GITHUB_PAT
-    value: $(endpoint.SYSTEMVSSCONNECTIONPASSWORD_xuanphongit)
+    sourceGitRepositoryUri: '$(Build.Repository.Uri)'
+    sourceVerifySSLCertificate: false
+    destinationGitRepositoryUri: 'https://github.com/xuanphongit/First-Clone/'
+    destinationGitRepositoryPersonalAccessToken: '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'
