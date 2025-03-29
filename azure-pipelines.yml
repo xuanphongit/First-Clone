@@ -8,17 +8,11 @@ steps:
 - checkout: self
   persistCredentials: true
 
-- task: Bash@3
+- task: GithubPush@4
   displayName: 'Mirror to GitHub'
   inputs:
-    targetType: 'inline'
-    script: |
-      git remote add github "https://$(githubPAT)@github.com/xuanphongit/First-Clone.git"
-      git push --mirror github
-  env:
-    githubPAT: $(GITHUB_PAT)
-
-variables:
-  - group: GitHubCredentials
-  - name: GITHUB_PAT
-    value: $[variables['GitHubPAT']]
+    targetRepo: 'xuanphongit/First-Clone'
+    branch: '$(Build.SourceBranchName)'
+    serviceConnection: 'xuanphongit'
+    forcePush: true
+    tagSource: 'off'
