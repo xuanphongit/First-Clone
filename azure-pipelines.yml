@@ -13,7 +13,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      git remote add github "https://$(githubPAT)@github.com/xuanphongit/First-Clone.git"
+      git remote add github "https://$(GITHUB_PAT)@github.com/xuanphongit/First-Clone.git"
       git push --mirror github
   env:
     GITHUB_PAT: $(GITHUB_PAT)
