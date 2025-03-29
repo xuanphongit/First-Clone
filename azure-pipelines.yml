@@ -8,8 +8,8 @@ pool:
 
 steps:
   - script: |     
-      git clone --mirror "https://$(System.AccessToken)@dev.azure.com/thienthutula/phongmx/_git/First%20Repo"
-      cd YOUR_REPO.git
+      git clone --mirror "https://thienthutula1109.visualstudio.com/phongmx/_git/First%20Repo"
+      cd First%20Repo.git
 
       git remote set-url origin "https://$(GITHUB_PAT)@github.com/xuanphongit/First-Clone.git"
       git push --mirror --force
