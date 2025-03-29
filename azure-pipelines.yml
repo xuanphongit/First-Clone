@@ -1,0 +1,24 @@
+trigger:
+  - main # Thay đổi nhánh nếu cần
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- checkout: self
+  persistCredentials: true
+
+- task: Bash@3
+  displayName: 'Mirror to GitHub'
+  inputs:
+    targetType: 'inline'
+    script: |
+      git remote add github "https://$(githubPAT)@github.com/xuanphongit/First-Clone.git"
+      git push -u github $(Build.SourceBranchName):main --force
+  env:
+    githubPAT: $(GITHUB_PAT)
+
+variables:
+  - group: GitHubCredentials # Nếu có thể dùng Library variables groups là tối ưu.
+  - name: GITHUB_PAT
+    value: $[variables['GitHubPAT']]
