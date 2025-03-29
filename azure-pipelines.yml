@@ -5,12 +5,70 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-  - script: |     
-      git clone --mirror "https://thienthutula1109.visualstudio.com/phongmx/_git/First%20Repo"
-      cd First%20Repo.git
+  - checkout: self  # Ensures the full repo is checked out
 
+  - script: |
+      sudo apt update && sudo apt install gh jq -y
+    displayName: 'Install GitHub CLI & jq'
+
+  - script: |
+      git clone --mirror "https://thienthutula1109.visualstudio.com/phongmx/_git/First%20Repo" repo_mirror
+      cd repo_mirror
+
+      # Set GitHub as the new remote repository
       git remote set-url origin "https://$(GITHUB_PAT)@github.com/xuanphongit/First-Clone.git"
+
+      # Push all branches, tags, and history to GitHub
       git push --mirror --force
     displayName: 'Mirror Azure DevOps Repo to GitHub'
     env:
-      GITHUB_PAT: $(GITHUB_PAT)  # Securely use the stored token
+      GITHUB_PAT: $(GITHUB_PAT)
+
+  - script: |
+      gh auth login --with-token <<< "${GITHUB_PAT}"
+      
+      # Get all open pull requests from Azure DevOps
+      PRS=$(curl -s -u "$(System.AccessToken):" \
+        "https://thienthutula1109.visualstudio.com/phongmx/_git/First%20Repo/pullrequests?api-version=6.0" \
+        | jq -c '.value[]')
+
+      for PR in $PRS; do
+        TITLE=$(echo $PR | jq -r '.title')
+        SOURCE=$(echo $PR | jq -r '.sourceRefName' | sed 's/refs\/heads\///')
+        TARGET=$(echo $PR | jq -r '.targetRefName' | sed 's/refs\/heads\///')
+        BODY=$(echo $PR | jq -r '.description')
+
+        # Recreate the PR on GitHub
+        gh pr create --repo xuanphongit/First-Clone \
+          --head "$SOURCE" --base "$TARGET" \
+          --title "$TITLE" --body "$BODY"
+      done
+    displayName: 'Sync Pull Requests to GitHub'
+    env:
+      GITHUB_PAT: $(GITHUB_PAT)
+
+  - script: |
+      for PR in $PRS; do
+        PR_ID=$(echo $PR | jq -r '.pullRequestId')
+        COMMENTS=$(curl -s -u "$(System.AccessToken):" \
+          "https://thienthutula1109.visualstudio.com/phongmx/_git/First%20Repo/pullrequests/$PR_ID/threads?api-version=6.0" \
+          | jq -c '.value[]')
+
+        for COMMENT in $COMMENTS; do
+          BODY=$(echo $COMMENT | jq -r '.comments[0].content')
+
+          # Add comment to GitHub PR
+          gh pr comment --repo xuanphongit/First-Clone \
+            --body "$BODY"
+        done
+      done
+    displayName: 'Sync PR Comments to GitHub'
+    env:
+      GITHUB_PAT: $(GITHUB_PAT)
+
+schedules:
+  - cron: "0 0 * * *"  # Runs daily at midnight UTC
+    displayName: "Daily Sync to GitHub"
+    branches:
+      include:
+        - main
