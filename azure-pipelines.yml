@@ -1,12 +1,12 @@
 trigger:
-  - '*'
+  - "*"
 
 schedules:
-  - cron: "0 0 * * *"  # Run the pipeline daily at midnight UTC
-    displayName: 'Daily Sync'
+  - cron: "0 0 * * *" # Run the pipeline daily at midnight UTC
+    displayName: "Daily Sync"
 
 pool:
-  vmImage: 'ubuntu-latest' # Use the latest Ubuntu image for the build agent
+  vmImage: "ubuntu-latest" # Use the latest Ubuntu image for the build agent
 
 variables:
   - group: RepoConfig # Load variables from the Azure DevOps variable group named 'RepoConfig'
@@ -14,19 +14,19 @@ variables:
 steps:
   - checkout: self # Check out the repository code
 
-  - script: | 
-      sudo apt update && sudo apt install gh jq -y 
-    displayName: 'Install GitHub CLI & jq'
+  - script: |
+      sudo apt update && sudo apt install gh jq -y
+    displayName: "Install GitHub CLI & jq"
 
   - script: |
       git clone --bare "https://$(AZURE_ORG).visualstudio.com/$(AZURE_PROJECT)/_git/$(AZURE_REPO)" "$(REPO_DIR)"
       cd "$(REPO_DIR)"
-      
+
       # Set GitHub as the new remote repository
       git remote set-url origin "https://$(GITHUB_PAT)@github.com/$(GITHUB_USER)/$(GITHUB_REPO).git"
-      
+
       # Push all branches, tags, and history to GitHub
       git push --force --prune origin +refs/heads/*:refs/heads/* +refs/tags/*:refs/tags/*
-    displayName: 'Mirror Azure DevOps Repo to GitHub'
+    displayName: "Mirror Azure DevOps Repo to GitHub"
     env:
       GITHUB_PAT: $(GITHUB_PAT)
