@@ -1,14 +1,9 @@
 trigger:
-  branches:
-    include:
-      - main  # Run the pipeline only when changes are pushed to the main branch
+  - '*'
 
 schedules:
   - cron: "0 0 * * *"  # Run the pipeline daily at midnight UTC
     displayName: 'Daily Sync'
-    branches:
-      include:
-        - main  # Run the job only on the main branch
 
 pool:
   vmImage: 'ubuntu-latest' # Use the latest Ubuntu image for the build agent
